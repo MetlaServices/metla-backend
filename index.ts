@@ -1,0 +1,54 @@
+import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import session from 'express-session';
+import logger from 'morgan';
+import cookieParser from 'cookie-parser';
+import indexRouter from './src/routes/indexRouter'
+import connectDB from './src/models/config'
+import dotenv from 'dotenv'
+const PORT = process.env.PORT || 3001;
+const app = express();
+dotenv.config()
+// Load configuration
+connectDB(); // Connect to MongoDB
+
+// Middleware
+app.use(cors({
+  credentials: true,
+  origin: true
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use(cookieParser());
+app.use(session({
+  resave: true,
+  saveUninitialized: false,
+  secret: process.env.EXPRESS_SECRET || 'default_secret',
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Add this if serving over HTTPS
+    sameSite: 'none' // Set the SameSite attribute to None
+  }
+}));
+
+app.use(logger('tiny'));
+
+// Routes
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello');
+});
+
+app.use('/user', indexRouter);
+
+// 404 Handler
+app.all("*", (req: Request, res: Response) => {
+  res.status(404).send('404 - Not Found');
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+export default app;

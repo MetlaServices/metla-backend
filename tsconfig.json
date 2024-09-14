@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "forceConsistentCasingInFileNames": true,
+      "strict": true,
+      "skipLibCheck": true,
+      "typeRoots": ["./node_modules/@types", "./src/@types"],
+      "resolveJsonModule": true,
+      "target": "ES6",
+      "module": "commonjs",
+      "sourceMap": true
+    },
+    "include": [
+      "src/**/*.ts",
+      "src/utils/**/*.ts",
+      "src/types/**/*.d.ts"
+    ],
+    "exclude": [
+      "node_modules",
+      "index.ts"
+    ]
+  }
+  
