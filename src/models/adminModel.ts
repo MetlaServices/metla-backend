@@ -1,59 +1,71 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import bcrypt from 'bcrypt';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { Response } from 'express';
 
-// Define the interface for the Admin model
-interface IAdmin extends Document {
-  username: string;
-  email: string;
-  password: string;
-  comparePassword: (candidatePassword: string) => Promise<boolean>;
+// Define the User Interface
+interface IUser extends Document {
+    _id: Types.ObjectId; // Use ObjectId type for _id
+    username: string;
+    phone?: string;
+    email: string;
+    password: string;
+    otp: number;
+    resetPassword: string;
+    comparePassword(password: string): boolean;
+    getjwttoken(): string;
 }
 
-// Create the schema for the Admin model
-const AdminSchema: Schema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-});
+// Define the User Schema
+const userSchema = new Schema<IUser>({
+    username: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+    },
+    otp: {
+        type: Number,
+        default: -1
+    },
+    email: {
+        type: String,
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
+    },
+    password: {
+        type: String,
+        minlength: [4, 'Password should be at least 4 characters long'],
+    },
+    resetPassword: {
+        type: String,
+        default: '0'
+    }
+}, { timestamps: true });
 
-// Middleware to hash password before saving
-AdminSchema.pre<IAdmin>('save', async function (next) {
-  if (!this.isModified('password')) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(this.password, salt);
-    this.password = hashedPassword;
+// Password hashing middleware
+userSchema.pre<IUser>('save', function (next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
+    const salt = bcrypt.genSaltSync(10);
+    this.password = bcrypt.hashSync(this.password, salt);
     next();
-  } catch (error) {
-    next(error as mongoose.CallbackError); // Explicitly cast error to CallbackError
-  }
 });
 
-// Method to compare passwords
-AdminSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (error) {
-    throw new Error('Password comparison failed');
-  }
+// Compare password method
+userSchema.methods.comparePassword = function (password: string): boolean {
+    return bcrypt.compareSync(password, this.password);
 };
 
-// Create the Admin model
-const Admin = mongoose.model<IAdmin>('Admin', AdminSchema);
+// Generate JWT token method
+userSchema.methods.getjwttoken = function (): string {
+    return jwt.sign({ id: this._id.toString() }, process.env.JWT_SECRET as string, {
+        expiresIn: process.env.JWT_EXPIRE
+    });
+};
 
-export default Admin;
+// Define and export the User model
+const Admin = mongoose.model<IUser>('User', userSchema);
+
+export { Admin };
