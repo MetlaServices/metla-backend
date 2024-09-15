@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { Admin } from '../models/adminModel';
-import { Job } from '../models/jobModel';
 import { sendToken } from '../utils/sendToken';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { catchAsyncErrors } from '../middlewares/catchAsynError';
 import { CustomRequest } from '../middlewares/auth'; // Ensure CustomRequest is correctly imported
-
+import JobModel from '../models/jobModel'; // Import default export
 // Define the contactController object
 const adminController = {
 
@@ -122,41 +121,56 @@ const adminController = {
   // Add a new job
   addJobs: catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
     try {
-      const { title, company, location, description, level, salary, companySize, industry, experience, postedDate } = req.body;
-      
-      // Use the id from the request object
-      const adminId = req.id;
-      if (!adminId) {
-        return res.status(401).json({ success: false, message: 'No user ID found' });
-      }
+        const { title, company, location, description, level, salary, companySize, industry, experience, postedDate } = req.body;
+        
+        // Use the id from the request object
+        const adminId = req.id;
+        if (!adminId) {
+            return res.status(401).json({ success: false, message: 'No user ID found' });
+        }
 
-      // Create a new job document
-      const job = new Job({
-        title,
-        company,
-        location,
-        description,
-        level,
-        salary, // Assuming salary is already in rupees
-        companySize,
-        industry,
-        experience,
-        postedDate,
-      });
+        // Create a new job document
+        const job = new JobModel({
+            title,
+            company,
+            location,
+            description,
+            level,
+            salary,
+            companySize,
+            industry,
+            experience,
+            postedDate,
+            createdBy: adminId // Include createdBy
+        });
 
-      // Save the job to the database
-      await job.save();
+        // Save the job to the database
+        await job.save();
 
-      // Return success response
-      res.status(201).json({
-        success: true,
-        message: 'Job added successfully!',
-        job,
-      });
+        // Return success response
+        res.status(201).json({
+            success: true,
+            message: 'Job added successfully!',
+            job,
+        });
     } catch (error) {
-      console.error('Error adding job:', error);
-      res.status(500).json({ success: false, message: 'Internal Server Error' });
+        console.error('Error adding job:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
+}),
+
+fetchJobs:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<any>=>{
+  try {
+    // Fetch jobs from the database
+    const jobs = await JobModel.find();
+    res.status(200).json({
+        success: true,
+        jobs,
+    });
+} catch (error) {
+    console.error('Error fetching jobs:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+}
   })
 };
 

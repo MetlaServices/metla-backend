@@ -51,20 +51,20 @@ export const sendMail = async (htmlContent: string): Promise<void> => {
     console.error('Error sending email:', error);
 
     // Attempt to send multiple contents in a single email as a fallback
-    await sendMultipleContentsInSingleMail([{ htmlContent }]);
+    // await sendMultipleContentsInSingleMail([{ htmlContent }]);
   }
 };
 
 // Function to send multiple contents in one email
-export const sendMultipleContentsInSingleMail = async (emailContents: { htmlContent: string }[]): Promise<void> => {
-  try {
-    const combinedHtmlContent = emailContents.map(email => email.htmlContent).join('<br><br>');
+// export const sendMultipleContentsInSingleMail = async (emailContents: { htmlContent: string }[]): Promise<void> => {
+//   try {
+//     const combinedHtmlContent = emailContents.map(email => email.htmlContent).join('<br><br>');
 
-    // Send a single email with the combined content
-    await sendMail(combinedHtmlContent);
+//     // Send a single email with the combined content
+//     await sendMail(combinedHtmlContent);
 
-    console.log('Single email with combined contents sent successfully.');
-  } catch (error) {
-    console.error('Error sending combined email:', error);
-  }
-};
+//     console.log('Single email with combined contents sent successfully.');
+//   } catch (error) {
+//     console.error('Error sending combined email:', error);
+//   }
+// };

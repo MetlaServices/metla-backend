@@ -7,8 +7,8 @@ import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import indexRouter from './src/routes/indexRouter';
 import adminRouter from './src/routes/adminRouter';
+import jobRouter from './src/routes/jobRouter'
 import connectDB from './src/models/config';
-
 // Other code...
 console.log(process.env.PORT)
 
@@ -47,6 +47,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/user', indexRouter);
 app.use('/admin',adminRouter)
+app.use('/job',jobRouter)
 
 // 404 Handler
 app.all("*", (req: Request, res: Response) => {

@@ -1,78 +1,37 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-// Define the Job interface
-interface IJob extends Document {
+interface Job extends Document {
   title: string;
   company: string;
   location: string;
   description: string;
-  level: string;
-  salary: number; // Salary in rupees
+  level: 'junior' | 'mid' | 'senior'; // Ensure these values match what you're using
+  salary: number;
   companySize: string;
   industry: string;
   experience: string;
   postedDate: Date;
-  createdBy: Types.ObjectId; // To reference the admin who created the job
+  createdBy: mongoose.Types.ObjectId; // Ensure this field is defined
 }
 
-// Define the Job schema
-const jobSchema = new Schema<IJob>(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    company: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    location: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    level: {
-      type: String,
-      required: true,
-      enum: ['Entry', 'Mid', 'Senior'], // Example levels; adjust as needed
-    },
-    salary: {
-      type: Number,
-      required: true,
-      min: [0, 'Salary must be a positive number'], // Assuming salary in rupees
-    },
-    companySize: {
-      type: String,
-      required: true,
-    },
-    industry: {
-      type: String,
-      required: true,
-    },
-    experience: {
-      type: String,
-      required: true,
-    },
-    postedDate: {
-      type: Date,
-      default: Date.now,
-    },
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'Admin', // Assuming you have an Admin model
-      required: true,
-    },
+const jobSchema = new Schema<Job>({
+  title: { type: String, required: true },
+  company: { type: String, required: true },
+  location: { type: String, required: true },
+  description: { type: String, required: true },
+  level: { 
+    type: String, 
+    enum: ['junior', 'mid', 'senior'], // Define allowed values
+    required: true 
   },
-  { timestamps: true } // Automatically adds `createdAt` and `updatedAt` fields
-);
+  salary: { type: Number, required: true },
+  companySize: { type: String, required: true },
+  industry: { type: String, required: true },
+  experience: { type: String, required: true },
+  postedDate: { type: Date, required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true } // Add the field here
+});
 
-// Create and export the Job model
-const Job = mongoose.model<IJob>('Job', jobSchema);
+const JobModel = mongoose.model<Job>('Job', jobSchema);
 
-export { Job, IJob };
+export default JobModel;
