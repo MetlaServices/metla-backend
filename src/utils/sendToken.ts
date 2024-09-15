@@ -4,18 +4,20 @@ import { Response } from 'express';
 // Define the User Interface
 interface User extends Document {
     _id: Types.ObjectId; // Use ObjectId type for _id
-    getjwttoken: () => string;
+    getAccessToken: () => string;
+    getRefreshToken: () => string;
 }
-
 // Send Token Function
 export const sendToken = (user: User, statusCode: number, res: Response): void => {
-    const token = user.getjwttoken();
-    const expiresInMilliseconds = Number(process.env.COOKIE_EXPIRE) * 24 * 60 * 60 * 1000;
+    const accessToken = user.getAccessToken();
+    const refreshToken = user.getRefreshToken();
+    const accessTokenExpiresInMilliseconds = 15 * 60 * 1000; // 15 minutes for access token
 
     res.status(statusCode).json({
         success: true,
         id: user._id.toString(), // Ensure _id is a string in the response
-        token,
-        expiresIn: expiresInMilliseconds
+        accessToken,
+        refreshToken,
+        accessTokenExpiresIn: accessTokenExpiresInMilliseconds // Include the expiration time for access token
     });
 };

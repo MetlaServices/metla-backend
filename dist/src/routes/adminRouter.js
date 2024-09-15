@@ -4,10 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const indexController_1 = __importDefault(require("../controllers/indexController")); // Adjust the path as needed
-const catchAsynError_1 = require("../middlewares/catchAsynError");
+const adminController_1 = __importDefault(require("../controllers/adminController"));
+const auth_1 = require("../middlewares/auth");
 const router = express_1.default.Router();
 // Define the route for handling contact form submissions
-router.post('/contact', (0, catchAsynError_1.catchAsyncErrors)(indexController_1.default.handleContactForm));
+router.post('/signup', (adminController_1.default.registerAdmin));
+router.post('/login', (adminController_1.default.loginAdmin));
+router.post('/currentAdmin', auth_1.isAuthenticated, (adminController_1.default.currentAdmin));
 exports.default = router;
-//# sourceMappingURL=indexRouter.js.map
+//# sourceMappingURL=adminRouter.js.map

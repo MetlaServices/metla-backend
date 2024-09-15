@@ -7,16 +7,20 @@ const secure = true; // Use SSL (secure) connection
 const authUser = 'info@metlaservices.com'; // Domain-specific email address
 const authPass = 'Cayro@123'; // Email account's password
 
+console.log(authUser);
+
 // Configure the email transport
 const transporter = nodemailer.createTransport({
   host,
   port,
-  secure:true,
+  secure, // SSL enabled
   auth: {
     user: authUser,
     pass: authPass,
   },
-  // Enable debugging
+  tls: { rejectUnauthorized: false },
+  connectionTimeout: 10000, // Connection timeout in milliseconds (10 seconds)
+  socketTimeout: 10000, // Socket timeout in milliseconds (10 seconds)
 });
 
 // Debugging information for transporter setup
@@ -25,35 +29,42 @@ console.log('  Host:', host);
 console.log('  Port:', port);
 console.log('  Secure:', secure);
 console.log('  Auth User:', authUser);
-console.log('  Auth Password Loaded:', authPass ? 'Loaded' : 'Not Loaded'); // Avoid logging actual password
 
-// Function to send email
+// Function to send a single email
 export const sendMail = async (htmlContent: string): Promise<void> => {
   try {
-    // Log to verify that the email content is being generated properly
     console.log('HTML Email Content:', htmlContent);
 
     const mailOptions = {
-      from: authUser, // Static sender address
-      to: 'info@metlaservices.com', // Recipient email address (or use environment variable)
+      from: 'info@metlaservices.com', // Static sender address
+      to: 'info@metlaservices.com', // Recipient email address
       subject: 'Contact Form Submission', // Static subject line
-      html: htmlContent, // HTML content with form details
+      html: htmlContent, // HTML content
     };
 
-    // Log the mail options to verify the email is being constructed correctly
     console.log('Mail Options:', mailOptions);
 
-    // Send the email using nodemailer
+    // Attempt to send email
     const info = await transporter.sendMail(mailOptions);
-
-    // Log the response info after sending the email to see if it was successful
     console.log('Email sent successfully:', info);
-
   } catch (error) {
-    // Log any error during email sending
     console.error('Error sending email:', error);
 
-    // Include a specific error message to be thrown
-    throw new Error('Failed to send email');
+    // Attempt to send multiple contents in a single email as a fallback
+    await sendMultipleContentsInSingleMail([{ htmlContent }]);
+  }
+};
+
+// Function to send multiple contents in one email
+export const sendMultipleContentsInSingleMail = async (emailContents: { htmlContent: string }[]): Promise<void> => {
+  try {
+    const combinedHtmlContent = emailContents.map(email => email.htmlContent).join('<br><br>');
+
+    // Send a single email with the combined content
+    await sendMail(combinedHtmlContent);
+
+    console.log('Single email with combined contents sent successfully.');
+  } catch (error) {
+    console.error('Error sending combined email:', error);
   }
 };

@@ -1,5 +1,4 @@
 import express from 'express';
-import contactController from '../controllers/adminController'; // Adjust the path as needed
 import { catchAsyncErrors } from '../middlewares/catchAsynError';
 import adminController from '../controllers/adminController';
 import { isAuthenticated } from '../middlewares/auth';
@@ -12,4 +11,7 @@ router.post('/login',(adminController.loginAdmin))
 
 router.post('/currentAdmin',isAuthenticated,(adminController.currentAdmin))
 
+router.post('/refresh-token' ,adminController.refreshToken)
+
+router.post('/add-job',isAuthenticated,adminController.addJobs)
 export default router;

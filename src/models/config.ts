@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://cayroshopmern:cayrolive123@cayrolive.rguqe.mongodb.net/metlaservices'
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/metla'
 
 const connectDB = async () => {
   try {

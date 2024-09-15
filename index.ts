@@ -1,11 +1,17 @@
+import * as dotenv from 'dotenv';
+dotenv.config();  // Load environment variables
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import session from 'express-session';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
-import indexRouter from './src/routes/indexRouter'
-import connectDB from './src/models/config'
-import dotenv from 'dotenv'
+import indexRouter from './src/routes/indexRouter';
+import adminRouter from './src/routes/adminRouter';
+import connectDB from './src/models/config';
+
+// Other code...
+console.log(process.env.PORT)
+
 const PORT = process.env.PORT || 3001;
 const app = express();
 dotenv.config()
@@ -40,6 +46,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/user', indexRouter);
+app.use('/admin',adminRouter)
 
 // 404 Handler
 app.all("*", (req: Request, res: Response) => {
