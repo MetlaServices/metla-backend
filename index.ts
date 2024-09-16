@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();  // Load environment variables
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
@@ -9,12 +9,13 @@ import indexRouter from './src/routes/indexRouter';
 import adminRouter from './src/routes/adminRouter';
 import jobRouter from './src/routes/jobRouter'
 import connectDB from './src/models/config';
+import fileUpload from 'express-fileupload';
+import bodyParser from 'body-parser';
 // Other code...
-console.log(process.env.PORT)
+console.log(process.env.JWT_SECRET)
 
 const PORT = process.env.PORT || 3001;
 const app = express();
-dotenv.config()
 // Load configuration
 connectDB(); // Connect to MongoDB
 
@@ -23,10 +24,9 @@ app.use(cors({
   credentials: true,
   origin: true
 }));
-
+app.use(bodyParser())
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 app.use(cookieParser());
 app.use(session({
   resave: true,
@@ -39,6 +39,7 @@ app.use(session({
 }));
 
 app.use(logger('tiny'));
+app.use(fileUpload())
 
 // Routes
 app.get('/', (req: Request, res: Response) => {

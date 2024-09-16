@@ -30,11 +30,15 @@ exports.Admin = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-// Define the User Schema
-const userSchema = new mongoose_1.Schema({
+// Define the Admin Schema
+const adminSchema = new mongoose_1.Schema({
     username: {
         type: String,
         required: true
+    },
+    userType: {
+        type: String,
+        default: "Admin"
     },
     phone: {
         type: String,
@@ -46,18 +50,26 @@ const userSchema = new mongoose_1.Schema({
     email: {
         type: String,
         match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
+        required: true
     },
     password: {
         type: String,
         minlength: [4, 'Password should be at least 4 characters long'],
+        required: true
     },
     resetPassword: {
         type: String,
         default: '0'
+    },
+    refreshToken: {
+        type: String,
+    },
+    refreshTokenExpires: {
+        type: Date,
     }
 }, { timestamps: true });
 // Password hashing middleware
-userSchema.pre('save', function (next) {
+adminSchema.pre('save', function (next) {
     if (!this.isModified('password')) {
         return next();
     }
@@ -66,16 +78,27 @@ userSchema.pre('save', function (next) {
     next();
 });
 // Compare password method
-userSchema.methods.comparePassword = function (password) {
+adminSchema.methods.comparePassword = function (password) {
     return bcryptjs_1.default.compareSync(password, this.password);
 };
-// Generate JWT token method
-userSchema.methods.getjwttoken = function () {
+// Generate JWT access token method
+adminSchema.methods.getAccessToken = function () {
     return jsonwebtoken_1.default.sign({ id: this._id.toString() }, 'JWT_SECRET', {
-        expiresIn: '1d'
+        expiresIn: '15m' // Short-lived access token
     });
 };
-// Define and export the User model
-const Admin = mongoose_1.default.model('Admin', userSchema);
+// Generate JWT refresh token method
+adminSchema.methods.getRefreshToken = function () {
+    const refreshToken = jsonwebtoken_1.default.sign({ id: this._id.toString() }, 'REFRESH_SECRET', {
+        expiresIn: '7d' // Longer-lived refresh token
+    });
+    // Save the refresh token and its expiry to the admin document
+    this.refreshToken = refreshToken;
+    this.refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    this.save();
+    return refreshToken;
+};
+// Define and export the Admin model
+const Admin = mongoose_1.default.model('Admin', adminSchema);
 exports.Admin = Admin;
 //# sourceMappingURL=adminModel.js.map

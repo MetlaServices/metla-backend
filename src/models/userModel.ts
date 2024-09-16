@@ -1,18 +1,29 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-// Define the interface for the User document
+// Define the User Interface
 interface IUser extends Document {
+  _id: Types.ObjectId;
   name: string;
   email: string;
   phone: string;
-  message: string;
+  resumeLink: {
+    fieldId: string;
+    url: string;
+  };
+  getAccessToken(): string;
+  getRefreshToken(): string;
+  comparePassword(password: string): boolean;
+  otp: number;
+  otpExpires: Date;
+  userType:String;
 }
 
-// Create the schema for the User model
-const UserSchema: Schema = new Schema({
+// Define the User Schema
+const userSchema = new Schema<IUser>({
   name: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
@@ -21,15 +32,56 @@ const UserSchema: Schema = new Schema({
   },
   phone: {
     type: String,
-    required: true,
   },
-  message: {
-    type: String,
-    required: true,
+  resumeLink: {
+    type: Object,
+    default: {
+      fieldId: '',
+      url: '',
+    },
   },
-});
+  otp: {
+    type: Number,
+    default: null,
+  },
+  otpExpires: {
+    type: Date,
+  },
+  userType:{
+    type:String,
+    default:"User"
+  }
+}, { timestamps: true });
 
-// Create the User model
-const User = mongoose.model<IUser>('User', UserSchema);
+// Password hashing middleware
 
-export default User;
+// Compare password method
+userSchema.methods.comparePassword = function (password: string): boolean {
+  return bcrypt.compareSync(password, this.password);
+};
+
+// Generate JWT access token method
+userSchema.methods.getAccessToken = function (): string {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  
+  return jwt.sign({ id: this._id.toString() }, process.env.JWT_SECRET, {
+    expiresIn: '15m', // Short-lived access token
+  });
+};
+
+// Generate JWT refresh token method
+userSchema.methods.getRefreshToken = function (): string {
+  if (!process.env.REFRESH_SECRET) {
+    throw new Error('REFRESH_SECRET is not defined');
+  }
+  return jwt.sign({ id: this._id.toString() }, process.env.REFRESH_SECRET, {
+    expiresIn: '7d', // Longer-lived refresh token
+  });
+};
+
+// Define and export the User model
+const User = mongoose.model<IUser>('User', userSchema);
+
+export { User, IUser };

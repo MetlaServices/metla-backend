@@ -11,5 +11,8 @@ const router = express_1.default.Router();
 router.post('/signup', (adminController_1.default.registerAdmin));
 router.post('/login', (adminController_1.default.loginAdmin));
 router.post('/currentAdmin', auth_1.isAuthenticated, (adminController_1.default.currentAdmin));
+router.post('/refresh-token', adminController_1.default.refreshToken);
+router.post('/add-job', auth_1.isAuthenticated, adminController_1.default.addJobs);
+router.get('/fetchJobs', auth_1.isAuthenticated, adminController_1.default.fetchJobs);
 exports.default = router;
 //# sourceMappingURL=adminRouter.js.map

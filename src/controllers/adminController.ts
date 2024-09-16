@@ -102,7 +102,7 @@ const adminController = {
 
     try {
       // Verify the refresh token
-      const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET as string) as { id: string };
+      const decoded = jwt.verify(refreshToken,'REFRESH_SECRET' as string) as { id: string };
       const admin = await Admin.findById(decoded.id);
 
       if (!admin || admin.refreshToken !== refreshToken) {

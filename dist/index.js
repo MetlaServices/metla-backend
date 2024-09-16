@@ -12,8 +12,12 @@ const morgan_1 = __importDefault(require("morgan"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const indexRouter_1 = __importDefault(require("./src/routes/indexRouter"));
 const adminRouter_1 = __importDefault(require("./src/routes/adminRouter"));
+const jobRouter_1 = __importDefault(require("./src/routes/jobRouter"));
 const config_1 = __importDefault(require("./src/models/config"));
+const express_fileupload_1 = __importDefault(require("express-fileupload"));
+const body_parser_1 = __importDefault(require("body-parser"));
 // Other code...
+console.log(process.env.PORT);
 const PORT = process.env.PORT || 3001;
 const app = (0, express_1.default)();
 dotenv_1.default.config();
@@ -24,6 +28,7 @@ app.use((0, cors_1.default)({
     credentials: true,
     origin: true
 }));
+app.use((0, body_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
@@ -37,12 +42,14 @@ app.use((0, express_session_1.default)({
     }
 }));
 app.use((0, morgan_1.default)('tiny'));
+app.use((0, express_fileupload_1.default)());
 // Routes
 app.get('/', (req, res) => {
     res.send('Hello');
 });
 app.use('/user', indexRouter_1.default);
 app.use('/admin', adminRouter_1.default);
+app.use('/job', jobRouter_1.default);
 // 404 Handler
 app.all("*", (req, res) => {
     res.status(404).send('404 - Not Found');

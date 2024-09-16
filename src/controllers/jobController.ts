@@ -34,7 +34,7 @@ fetchJobById : catchAsyncErrors(async (req: Request, res: Response, next: NextFu
     }
 }),
 
-  updateJobById:catchAsyncErrors(async(req:Request,res:Response,next:NextFunction):Promise<void>=>{
+updateJobById:catchAsyncErrors(async(req:Request,res:Response,next:NextFunction):Promise<void>=>{
     try {
         const { adminId, jobId } = req.params;
         const updateData = req.body; // The data to update the job with
@@ -65,6 +65,9 @@ fetchJobById : catchAsyncErrors(async (req: Request, res: Response, next: NextFu
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
   })
+
+
+  
 };
 
 export default jobController;

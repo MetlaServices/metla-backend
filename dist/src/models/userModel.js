@@ -22,13 +22,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.User = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-// Create the schema for the User model
-const UserSchema = new mongoose_1.Schema({
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+// Define the User Schema
+const userSchema = new mongoose_1.Schema({
     name: {
         type: String,
-        required: true,
     },
     email: {
         type: String,
@@ -37,14 +42,40 @@ const UserSchema = new mongoose_1.Schema({
     },
     phone: {
         type: String,
-        required: true,
     },
-    message: {
-        type: String,
-        required: true,
+    resumeLink: {
+        type: Object,
+        default: {
+            fieldId: '',
+            url: '',
+        },
     },
-});
-// Create the User model
-const User = mongoose_1.default.model('User', UserSchema);
-exports.default = User;
+    otp: {
+        type: Number,
+        default: null,
+    },
+    otpExpires: {
+        type: Date,
+    },
+}, { timestamps: true });
+// Password hashing middleware
+// Compare password method
+userSchema.methods.comparePassword = function (password) {
+    return bcryptjs_1.default.compareSync(password, this.password);
+};
+// Generate JWT access token method
+userSchema.methods.getAccessToken = function () {
+    return jsonwebtoken_1.default.sign({ id: this._id.toString() }, 'JWT_SECRET', {
+        expiresIn: '15m' // Short-lived access token
+    });
+};
+// Generate JWT refresh token method
+userSchema.methods.getRefreshToken = function () {
+    return jsonwebtoken_1.default.sign({ id: this._id.toString() }, 'REFRESH_SECRET', {
+        expiresIn: '7d' // Longer-lived refresh token
+    });
+};
+// Define and export the User model
+const User = mongoose_1.default.model('User', userSchema);
+exports.User = User;
 //# sourceMappingURL=userModel.js.map

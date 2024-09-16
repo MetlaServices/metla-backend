@@ -3,13 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendToken = void 0;
 // Send Token Function
 const sendToken = (user, statusCode, res) => {
-    const token = user.getjwttoken();
-    const expiresInMilliseconds = Number(1) * 24 * 60 * 60 * 1000;
+    const accessToken = user.getAccessToken();
+    const refreshToken = user.getRefreshToken();
+    const accessTokenExpiresInMilliseconds = 15 * 60 * 1000; // 15 minutes for access token
     res.status(statusCode).json({
         success: true,
         id: user._id.toString(), // Ensure _id is a string in the response
-        token,
-        expiresIn: expiresInMilliseconds
+        accessToken,
+        refreshToken,
+        accessTokenExpiresIn: accessTokenExpiresInMilliseconds // Include the expiration time for access token
     });
 };
 exports.sendToken = sendToken;

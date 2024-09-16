@@ -1,11 +1,13 @@
 import nodemailer from 'nodemailer';
+import { NextFunction } from 'express';
+import { User } from '../models/userModel';
 
 // Email configuration
-const host = 'mail.metlaservices.com'; // SMTP server address
+const host = 'smtp.gmail.com'; // SMTP server address
 const port = 465; // SMTP server port for SSL
 const secure = true; // Use SSL (secure) connection
-const authUser = 'info@metlaservices.com'; // Domain-specific email address
-const authPass = 'Cayro@123'; // Email account's password
+const authUser = 'servicesmetla@gmail.com'; // Domain-specific email address
+const authPass = 'mniy wpdd avfy yrxc'; // Email account's password
 
 console.log(authUser);
 
@@ -55,16 +57,21 @@ export const sendMail = async (htmlContent: string): Promise<void> => {
   }
 };
 
-// Function to send multiple contents in one email
-// export const sendMultipleContentsInSingleMail = async (emailContents: { htmlContent: string }[]): Promise<void> => {
-//   try {
-//     const combinedHtmlContent = emailContents.map(email => email.htmlContent).join('<br><br>');
 
-//     // Send a single email with the combined content
-//     await sendMail(combinedHtmlContent);
 
-//     console.log('Single email with combined contents sent successfully.');
-//   } catch (error) {
-//     console.error('Error sending combined email:', error);
-//   }
-// };
+
+export const sendOTP = async (htmlContent: string, email: string): Promise<void> => {
+  try {
+    const mailOptions = {
+      from: 'servicesmetla@gmail.com',
+      to: email,
+      subject: 'OTP Code',
+      html: htmlContent,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', info);
+  } catch (error) {
+    throw error; // Rethrow the error to be caught by the caller
+  }
+};

@@ -9,5 +9,8 @@ const catchAsynError_1 = require("../middlewares/catchAsynError");
 const router = express_1.default.Router();
 // Define the route for handling contact form submissions
 router.post('/sendContactData', (0, catchAsynError_1.catchAsyncErrors)(indexController_1.default.handleContactForm));
+router.post('/sendApplicantDetails', (0, catchAsynError_1.catchAsyncErrors)(indexController_1.default.submitApplicantDetails));
+router.post('/send-otp', (0, catchAsynError_1.catchAsyncErrors)(indexController_1.default.sendEMAILOTP));
+router.post('/verify-otp', (0, catchAsynError_1.catchAsyncErrors)(indexController_1.default.verifyOtp));
 exports.default = router;
 //# sourceMappingURL=indexRouter.js.map

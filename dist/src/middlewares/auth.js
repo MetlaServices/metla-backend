@@ -25,9 +25,8 @@ exports.isAuthenticated = (0, catchAsynError_1.catchAsyncErrors)((req, res, next
     const token = authHeader.split(' ')[1];
     try {
         // Type assertion to ensure the environment variable is a string
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        const decoded = jsonwebtoken_1.default.verify(token, 'JWT_SECRET');
         req.id = decoded.id;
-        // console.log("Authenticated user ID:", req.id);
         next();
     }
     catch (error) {
