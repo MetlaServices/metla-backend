@@ -15,11 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendOTP = exports.sendMail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 // Email configuration
-const host = 'smtp.gmail.com'; // SMTP server address
+const host = 'mail.metlaservices.com'; // SMTP server address
 const port = 465; // SMTP server port for SSL
 const secure = true; // Use SSL (secure) connection
-const authUser = 'servicesmetla@gmail.com'; // Domain-specific email address
-const authPass = 'mniy wpdd avfy yrxc'; // Email account's password
+const authUser = 'sales@metlaservices.com'; // Domain-specific email address
+const authPass = 'Metla@2024'; // Email account's password
 console.log(authUser);
 // Configure the email transport
 const transporter = nodemailer_1.default.createTransport({
@@ -30,6 +30,7 @@ const transporter = nodemailer_1.default.createTransport({
         user: authUser,
         pass: authPass,
     },
+    requireTLS: true, // Force STARTTLS
     tls: { rejectUnauthorized: false },
     connectionTimeout: 10000, // Connection timeout in milliseconds (10 seconds)
     socketTimeout: 10000, // Socket timeout in milliseconds (10 seconds)
@@ -45,8 +46,8 @@ const sendMail = (htmlContent) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         console.log('HTML Email Content:', htmlContent);
         const mailOptions = {
-            from: 'info@metlaservices.com', // Static sender address
-            to: 'info@metlaservices.com', // Recipient email address
+            from: 'sales@metlaservices.com', // Static sender address
+            to: 'sales@metlaservices.com', // Recipient email address
             subject: 'Contact Form Submission', // Static subject line
             html: htmlContent, // HTML content
         };

@@ -9,6 +9,7 @@ fetchJobs:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunctio
   try {
     // Fetch jobs from the database
     const jobs = await JobModel.find();
+    console.log(jobs)
     res.status(200).json({
         success: true,
         jobs,
@@ -67,7 +68,7 @@ updateJobById:catchAsyncErrors(async(req:Request,res:Response,next:NextFunction)
   })
 
 
-  
+
 };
 
 export default jobController;

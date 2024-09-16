@@ -20,6 +20,7 @@ const jobController = {
         try {
             // Fetch jobs from the database
             const jobs = yield jobModel_1.default.find();
+            console.log(jobs);
             res.status(200).json({
                 success: true,
                 jobs,

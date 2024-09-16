@@ -1,77 +1,60 @@
 import nodemailer from 'nodemailer';
-import { NextFunction } from 'express';
-import { User } from '../models/userModel';
 
 // Email configuration
-const host = 'smtp.gmail.com'; // SMTP server address
-const port = 465; // SMTP server port for SSL
-const secure = true; // Use SSL (secure) connection
-const authUser = 'servicesmetla@gmail.com'; // Domain-specific email address
-const authPass = 'mniy wpdd avfy yrxc'; // Email account's password
-
-console.log(authUser);
+const host = 'mail.metlaservices.com'; // SMTP server address
+const port = 465; // SMTP port for SSL
+const secure = true; // Use SSL (secure connection)
+const authUser = 'info@metlaservices.com'; // Email account's address
+const authPass = process.env.MAIL_PASSWORD; // Email account's password from environment variable
 
 // Configure the email transport
 const transporter = nodemailer.createTransport({
-  host,
-  port,
-  secure, // SSL enabled
+  host, // SMTP server
+  port, // Port 465 for SSL
+  secure, // Use SSL
   auth: {
-    user: authUser,
-    pass: authPass,
+    user: authUser, // Email username
+    pass: authPass, // Email password
   },
-  tls: { rejectUnauthorized: false },
-  connectionTimeout: 10000, // Connection timeout in milliseconds (10 seconds)
-  socketTimeout: 10000, // Socket timeout in milliseconds (10 seconds)
+  tls: { rejectUnauthorized: false }, // Allow self-signed certificates
+  connectionTimeout: 10000, // Connection timeout (10 seconds)
+  socketTimeout: 10000, // Socket timeout (10 seconds)
+  requireTLS: true, // Enforce TLS
 });
-
-// Debugging information for transporter setup
-console.log('Transporter Configured with:');
-console.log('  Host:', host);
-console.log('  Port:', port);
-console.log('  Secure:', secure);
-console.log('  Auth User:', authUser);
 
 // Function to send a single email
 export const sendMail = async (htmlContent: string): Promise<void> => {
   try {
-    console.log('HTML Email Content:', htmlContent);
-
     const mailOptions = {
-      from: 'info@metlaservices.com', // Static sender address
-      to: 'info@metlaservices.com', // Recipient email address
-      subject: 'Contact Form Submission', // Static subject line
+      from: 'info@metlaservices.com', // Sender address
+      to: 'info@metlaservices.com', // Recipient email
+      subject: 'Contact Form Submission', // Email subject
       html: htmlContent, // HTML content
     };
 
-    console.log('Mail Options:', mailOptions);
-
-    // Attempt to send email
+    // Send email
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', info);
   } catch (error) {
     console.error('Error sending email:', error);
-
-    // Attempt to send multiple contents in a single email as a fallback
-    // await sendMultipleContentsInSingleMail([{ htmlContent }]);
   }
 };
 
-
-
-
+// Function to send OTP to a user
 export const sendOTP = async (htmlContent: string, email: string): Promise<void> => {
   try {
     const mailOptions = {
-      from: 'servicesmetla@gmail.com',
-      to: email,
-      subject: 'OTP Code',
-      html: htmlContent,
+      from: 'info@metlaservices.com', // Sender address for OTP
+      to: email, // Recipient email
+      subject: 'Your OTP Code', // Email subject
+      html: htmlContent, // HTML content for OTP
     };
 
+    // Send OTP email
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info);
+    console.log('OTP email sent successfully:', info);
   } catch (error) {
-    throw error; // Rethrow the error to be caught by the caller
+    console.error('Error sending OTP:', error);
+    throw error; // Throw the error to be handled by the caller
   }
 };

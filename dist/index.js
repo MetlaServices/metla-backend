@@ -17,10 +17,9 @@ const config_1 = __importDefault(require("./src/models/config"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const body_parser_1 = __importDefault(require("body-parser"));
 // Other code...
-console.log(process.env.PORT);
+console.log(process.env.JWT_SECRET);
 const PORT = process.env.PORT || 3001;
 const app = (0, express_1.default)();
-dotenv_1.default.config();
 // Load configuration
 (0, config_1.default)(); // Connect to MongoDB
 // Middleware

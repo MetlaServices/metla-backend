@@ -57,6 +57,10 @@ const userSchema = new mongoose_1.Schema({
     otpExpires: {
         type: Date,
     },
+    userType: {
+        type: String,
+        default: "User"
+    }
 }, { timestamps: true });
 // Password hashing middleware
 // Compare password method
@@ -65,14 +69,20 @@ userSchema.methods.comparePassword = function (password) {
 };
 // Generate JWT access token method
 userSchema.methods.getAccessToken = function () {
-    return jsonwebtoken_1.default.sign({ id: this._id.toString() }, 'JWT_SECRET', {
-        expiresIn: '15m' // Short-lived access token
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not defined');
+    }
+    return jsonwebtoken_1.default.sign({ id: this._id.toString() }, process.env.JWT_SECRET, {
+        expiresIn: '15m', // Short-lived access token
     });
 };
 // Generate JWT refresh token method
 userSchema.methods.getRefreshToken = function () {
-    return jsonwebtoken_1.default.sign({ id: this._id.toString() }, 'REFRESH_SECRET', {
-        expiresIn: '7d' // Longer-lived refresh token
+    if (!process.env.REFRESH_SECRET) {
+        throw new Error('REFRESH_SECRET is not defined');
+    }
+    return jsonwebtoken_1.default.sign({ id: this._id.toString() }, process.env.REFRESH_SECRET, {
+        expiresIn: '7d', // Longer-lived refresh token
     });
 };
 // Define and export the User model
