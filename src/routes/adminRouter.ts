@@ -18,4 +18,6 @@ router.post('/add-job',isAuthenticated,adminController.addJobs)
 router.get('/fetchJobs',isAuthenticated,adminController.fetchJobs)
 
 router.get('/queries',isAuthenticated,adminController.fetchAllQueries)
+
+router.get('/viewapplications',isAuthenticated,adminController.viewApplications)
 export default router;

@@ -7,6 +7,8 @@ import { catchAsyncErrors } from '../middlewares/catchAsynError';
 import { CustomRequest } from '../middlewares/auth'; // Ensure CustomRequest is correctly imported
 import JobModel from '../models/jobModel'; // Import default export
 import Contact from '../models/query'; // Import default export
+import Application from '../models/applications';
+import ErrorHandler from '../utils/ErrorHandler';
 
 const adminController = {
 
@@ -186,7 +188,8 @@ const adminController = {
     }
   })
   
-  ,fetchAllQueries: catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+  ,
+  fetchAllQueries: catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       // Fetch all contact form submissions from the database
       const contacts = await Contact.find().sort({ createdAt: -1 }); // Sort by creation date in descending order
@@ -207,6 +210,32 @@ const adminController = {
       });
     }
   }),
+
+
+  viewApplications:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
+      try {
+          // Fetch all applications from the database
+          const applications = await Application.find()
+              .populate({
+                  path: 'jobId',
+                  select: 'title' // Include only the title field from the Job model
+              })
+              .populate({
+                  path: 'applicantId',
+                  select: 'name email phone' // Include fields from the User model
+              })
+              .exec();
+  
+          // Send the applications data as a response
+          res.status(200).json({
+              success: true,
+              data: applications
+          });
+      } catch (error) {
+          // Handle errors
+          next(new ErrorHandler('Failed to fetch applications', 500));
+      }
+  })
 };
 
 export default adminController;
