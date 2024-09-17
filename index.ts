@@ -7,24 +7,26 @@ import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import indexRouter from './src/routes/indexRouter';
 import adminRouter from './src/routes/adminRouter';
-import jobRouter from './src/routes/jobRouter'
+import jobRouter from './src/routes/jobRouter';
 import connectDB from './src/models/config';
 import fileUpload from 'express-fileupload';
 import bodyParser from 'body-parser';
-// Other code...
-console.log(process.env.JWT_SECRET)
+
+console.log(process.env.JWT_SECRET);
 
 const PORT = process.env.PORT || 3001;
 const app = express();
+
 // Load configuration
 connectDB(); // Connect to MongoDB
 
 // Middleware
 app.use(cors({
   credentials: true,
-  origin: true
+  origin: true, // Adjust as needed
 }));
-app.use(bodyParser())
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileUpload());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -37,9 +39,7 @@ app.use(session({
     sameSite: 'none' // Set the SameSite attribute to None
   }
 }));
-
 app.use(logger('tiny'));
-app.use(fileUpload())
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
@@ -47,12 +47,18 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/user', indexRouter);
-app.use('/admin',adminRouter)
-app.use('/job',jobRouter)
+app.use('/admin', adminRouter);
+app.use('/job', jobRouter);
 
 // 404 Handler
-app.all("*", (req: Request, res: Response) => {
+app.all('*', (req: Request, res: Response) => {
   res.status(404).send('404 - Not Found');
+});
+
+// Error Handling Middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('Error:', err);
+  res.status(500).json({ message: 'Internal Server Error' });
 });
 
 // Start Server

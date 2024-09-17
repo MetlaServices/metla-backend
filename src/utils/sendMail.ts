@@ -1,11 +1,11 @@
 import nodemailer from 'nodemailer';
 
 // Email configuration
-const host = 'mail.metlaservices.com'; // SMTP server address
+const host = 'mail.cayroservices.com'; // SMTP server address
 const port = 465; // SMTP port for SSL
 const secure = true; // Use SSL (secure connection)
-const authUser = 'info@metlaservices.com'; // Email account's address
-const authPass = process.env.MAIL_PASSWORD; // Email account's password from environment variable
+const authUser = 'info@cayroservices.com'; // Email account's address
+const authPass = 'qG;O]%-*E?F_'; // Email account's password from environment variable
 
 // Configure the email transport
 const transporter = nodemailer.createTransport({
@@ -26,8 +26,8 @@ const transporter = nodemailer.createTransport({
 export const sendMail = async (htmlContent: string): Promise<void> => {
   try {
     const mailOptions = {
-      from: 'info@metlaservices.com', // Sender address
-      to: 'info@metlaservices.com', // Recipient email
+      from: 'info@cayroservices.com', // Sender address
+      to: 'info@cayroservices.com', // Recipient email
       subject: 'Contact Form Submission', // Email subject
       html: htmlContent, // HTML content
     };
@@ -44,7 +44,7 @@ export const sendMail = async (htmlContent: string): Promise<void> => {
 export const sendOTP = async (htmlContent: string, email: string): Promise<void> => {
   try {
     const mailOptions = {
-      from: 'info@metlaservices.com', // Sender address for OTP
+      from: 'sales@metlaservices.com', // Sender address for OTP
       to: email, // Recipient email
       subject: 'Your OTP Code', // Email subject
       html: htmlContent, // HTML content for OTP

@@ -1,9 +1,12 @@
 import express from 'express';
 import indexController from '../controllers/indexController'; // Adjust the path as needed
 import { catchAsyncErrors } from '../middlewares/catchAsynError';
+import { isAuthenticated } from '../middlewares/auth';
 const router = express.Router();
 
 // Define the route for handling contact form submissions
+
+router.post('/currentUser',isAuthenticated,catchAsyncErrors(indexController.currentUser))
 router.post('/sendContactData', catchAsyncErrors(indexController.handleContactForm));
 
 
@@ -12,4 +15,6 @@ router.post('/sendApplicantDetails',catchAsyncErrors(indexController.submitAppli
 router.post('/send-otp',catchAsyncErrors(indexController.sendEMAILOTP))
 
 router.post('/verify-otp',catchAsyncErrors(indexController.verifyOtp))
+
+router.put('/update-profile',isAuthenticated,catchAsyncErrors(indexController.updateProfile))
 export default router;

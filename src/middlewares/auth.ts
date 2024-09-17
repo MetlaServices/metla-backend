@@ -18,8 +18,8 @@ export const isAuthenticated = catchAsyncErrors(async (req: CustomRequest, res: 
     const token = authHeader.split(' ')[1];
 
     try {
-        // Type assertion to ensure the environment variable is a string
-        const decoded = jwt.verify(token, 'JWT_SECRET') as { id: string };
+        // Ensure you have your secret in an environment variable
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
         req.id = decoded.id;
         next();
     } catch (error) {

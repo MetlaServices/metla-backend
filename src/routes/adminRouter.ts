@@ -16,4 +16,6 @@ router.post('/refresh-token' ,adminController.refreshToken)
 router.post('/add-job',isAuthenticated,adminController.addJobs)
 
 router.get('/fetchJobs',isAuthenticated,adminController.fetchJobs)
+
+router.get('/queries',isAuthenticated,adminController.fetchAllQueries)
 export default router;

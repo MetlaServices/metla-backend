@@ -16,7 +16,7 @@ interface IUser extends Document {
   getRefreshToken(): string;
   comparePassword(password: string): boolean;
   otp: number;
-  otpExpires: Date;
+  otpExpires: Number;
   userType:String;
 }
 
@@ -45,7 +45,7 @@ const userSchema = new Schema<IUser>({
     default: null,
   },
   otpExpires: {
-    type: Date,
+    type: Number,
   },
   userType:{
     type:String,
