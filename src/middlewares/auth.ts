@@ -11,6 +11,7 @@ export interface CustomRequest extends Request {
 // Middleware to check if user is authenticated
 export const isAuthenticated = catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers.authorization;
+    console.log(authHeader)
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return next(new ErrorHandler("Login first to access this resource", 401));
     }

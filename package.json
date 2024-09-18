@@ -23,6 +23,7 @@
     "express-fileuploader": "^0.0.7",
     "imagekit": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
+    "mailtrap": "^3.4.0",
     "mongoose": "^8.6.2",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.15"

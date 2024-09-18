@@ -235,6 +235,31 @@ const adminController = {
           // Handle errors
           next(new ErrorHandler('Failed to fetch applications', 500));
       }
+  }),
+
+  logOut:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
+    try {
+      // Clear the access and refresh tokens by setting their values to an empty string and setting expiration dates to the past
+      res.clearCookie('accessToken', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'none',
+      });
+
+      res.clearCookie('refreshToken', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'none',
+      });
+
+      res.status(200).json({
+          success: true,
+          message: 'Logged out successfully',
+      });
+      
+  } catch (error) {
+      next(error);
+  }
   })
 };
 

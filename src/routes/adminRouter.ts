@@ -20,4 +20,6 @@ router.get('/fetchJobs',isAuthenticated,adminController.fetchJobs)
 router.get('/queries',isAuthenticated,adminController.fetchAllQueries)
 
 router.get('/viewapplications',isAuthenticated,adminController.viewApplications)
+
+router.post('/logout',isAuthenticated,adminController.logOut)
 export default router;
