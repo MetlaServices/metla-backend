@@ -17,4 +17,6 @@ router.post('/send-otp',catchAsyncErrors(indexController.sendEMAILOTP))
 router.post('/verify-otp',catchAsyncErrors(indexController.verifyOtp))
 
 router.put('/update-profile',isAuthenticated,catchAsyncErrors(indexController.updateProfile))
+
+router.post('/logout',isAuthenticated,catchAsyncErrors(indexController.logOut))
 export default router;

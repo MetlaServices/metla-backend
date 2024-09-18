@@ -312,6 +312,23 @@ const contactController = {
       res.status(500).json({ message: 'Error updating profile', error });
     }
   }),
+
+ logOut :catchAsyncErrors(async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        // Clear the authorization token from the client's cookies
+        res.clearCookie('accessToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        
+      
+        res.status(200).json({
+            success: true,
+            message: 'Logged out successfully'
+        });
+    } catch (error) {
+        // Pass the error to the global error handler
+        next(error);
+    }
+}),
   
 };
 
