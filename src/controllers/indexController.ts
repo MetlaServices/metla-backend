@@ -80,13 +80,15 @@ const htmlContent = `
           border-radius: 5px;
           font-weight: bold;
         }
+          a{
+          color:#ffffff}
       
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>Contact Form Submission</h1>
+          <h1>Query Form</h1>
         </div>
         <div class="content">
           <p><strong>Name:</strong> ${name}</p>
