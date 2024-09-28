@@ -39,6 +39,7 @@ export const sendMail = async (
   isTest: boolean = false
 ): Promise<void> => {
   try {
+    console.log('Preparing to send email...');
     const mailOptions = {
       from: process.env.MAIL_TO_ADDRESS, // Sender address
       to: process.env.MAIL_TO_ADDRESS,   // Recipient email (same as sender for testing)
@@ -47,9 +48,16 @@ export const sendMail = async (
     };
 
     const transport = isTest ? mailtrapTransport : smtpTransport;
+    
+    console.log(`Using transport: ${isTest ? 'Mailtrap' : 'SMTP'}`);
+    console.log('Mail options:', mailOptions);
+    
     const info = await transport.sendMail(mailOptions);
 
     console.log('Email sent successfully:', info);
+    console.log('Message ID:', info.messageId);
+    console.log('Accepted recipients:', info.accepted);
+    console.log('Rejected recipients:', info.rejected);
   } catch (error) {
     console.error('Error sending email:', error);
     throw new Error('Failed to send email.'); // Throw an error to notify the caller of the failure
@@ -59,6 +67,7 @@ export const sendMail = async (
 // Function to send OTP to a user (for testing or production)
 export const sendOTP = async (htmlContent: string, email: string, isTest: boolean = false): Promise<void> => {
   try {
+    console.log('Preparing to send OTP...');
     const mailOptions = {
       from: process.env.MAIL_TO_ADDRESS, // Sender address
       to: email, // Recipient email
@@ -67,9 +76,16 @@ export const sendOTP = async (htmlContent: string, email: string, isTest: boolea
     };
 
     const transport = isTest ? mailtrapTransport : smtpTransport;
+
+    console.log(`Using transport for OTP: ${isTest ? 'Mailtrap' : 'SMTP'}`);
+    console.log('Mail options for OTP:', mailOptions);
+    
     const info = await transport.sendMail(mailOptions);
 
     console.log('OTP email sent successfully:', info);
+    console.log('Message ID:', info.messageId);
+    console.log('Accepted recipients:', info.accepted);
+    console.log('Rejected recipients:', info.rejected);
   } catch (error) {
     console.error('Error sending OTP:', error);
     throw error; // Throw the error to be handled by the caller
