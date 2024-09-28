@@ -88,7 +88,7 @@ const htmlContent = `
     <body>
       <div class="container">
         <div class="header">
-          <h1>Query Form</h1>
+          <h1>New query</h1>
         </div>
         <div class="content">
           <p><strong>Name:</strong> ${name}</p>
