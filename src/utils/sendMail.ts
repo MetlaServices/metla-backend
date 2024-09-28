@@ -33,12 +33,16 @@ interface SMTPResponse {
 }
 
 // Function to send a single email (for testing or production)
-export const sendMail = async (htmlContent: string, isTest: boolean = false): Promise<void> => {
+export const sendMail = async (
+  htmlContent: string,
+  userType: string,
+  isTest: boolean = false
+): Promise<void> => {
   try {
     const mailOptions = {
       from: process.env.MAIL_TO_ADDRESS, // Sender address
-      to: process.env.MAIL_TO_ADDRESS, // Recipient email (same as sender for testing)
-      subject: 'Contact Form Submission',
+      to: process.env.MAIL_TO_ADDRESS,   // Recipient email (same as sender for testing)
+      subject: `Query Form Submission from ${userType}`, // Correctly interpolating userType
       html: htmlContent,
     };
 
@@ -48,6 +52,7 @@ export const sendMail = async (htmlContent: string, isTest: boolean = false): Pr
     console.log('Email sent successfully:', info);
   } catch (error) {
     console.error('Error sending email:', error);
+    throw new Error('Failed to send email.'); // Throw an error to notify the caller of the failure
   }
 };
 

@@ -16,7 +16,7 @@ import Contact from '../models/query';
 const imageKit = initimagekit();
 
 const contactController = {
-  handleContactForm: catchAsyncErrors(async (req: Request, res: Response): Promise<void> => {
+  handleQueryFormEmployee: catchAsyncErrors(async (req: Request, res: Response): Promise<void> => {
     try {
       const { name, email, phone, message } = req.body;
       console.log(req.body);
@@ -31,16 +31,182 @@ const contactController = {
       await newQuery.save();
 
       // Email content
-      const htmlContent = `
-        <h1>Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `;
+     // Email content with improved HTML design
+// Enhanced HTML content with improved UI design
+const htmlContent = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+        }
+        .header {
+          background-color: #007BFF;
+          color: #ffffff;
+          padding: 20px;
+          text-align: center;
+        }
+        .header h1 {
+          margin: 0;
+        }
+        .content {
+          padding: 20px;
+        }
+        .content p {
+          color: #666666;
+          line-height: 1.6;
+        }
+        .content strong {
+          color: #333333;
+        }
+        .button {
+          display: inline-block;
+          margin: 20px 0;
+          padding: 10px 20px;
+          background-color: #007BFF;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 5px;
+          font-weight: bold;
+        }
+      
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Contact Form Submission</h1>
+        </div>
+        <div class="content">
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+          <a href="mailto:${email}" class="button">Reply to ${name}</a>
+        </div>
+    
+      </div>
+    </body>
+  </html>
+`;
+
+
 
       // Send the email
-      await sendMail(htmlContent);
+      await sendMail(htmlContent,"Employee");
+
+      // Send a success response
+      res.status(201).json({ message: 'Contact details saved and sent successfully!' });
+    } catch (error) {
+      const statusCode = (error as any).statusCode || 500;
+      const errorMessage = (error as any).message || 'An error occurred while handling contact details.';
+
+      console.error(error);
+      res.status(statusCode).json({ message: errorMessage });
+    }
+  }),
+
+  handleQueryFormClient: catchAsyncErrors(async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { name, email, phone, message } = req.body;
+      console.log(req.body);
+
+      // Save contact details to the database
+      const newQuery = new Contact({
+        name,
+        email,
+        phone,
+        message,
+      });
+      await newQuery.save();
+
+      // Email content
+     // Email content with improved HTML design
+// Enhanced HTML content with improved UI design
+const htmlContent = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+        }
+        .header {
+          background-color: #007BFF;
+          color: #ffffff;
+          padding: 20px;
+          text-align: center;
+        }
+        .header h1 {
+          margin: 0;
+        }
+        .content {
+          padding: 20px;
+        }
+        .content p {
+          color: #666666;
+          line-height: 1.6;
+        }
+        .content strong {
+          color: #333333;
+        }
+        .button {
+          display: inline-block;
+          margin: 20px 0;
+          padding: 10px 20px;
+          background-color: #007BFF;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 5px;
+          font-weight: bold;
+        }
+      
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Contact Form Submission</h1>
+        </div>
+        <div class="content">
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+          <a href="mailto:${email}" class="button">Reply to ${name}</a>
+        </div>
+    
+      </div>
+    </body>
+  </html>
+`;
+
+
+      // Send the email
+      await sendMail(htmlContent,"Client");
 
       // Send a success response
       res.status(201).json({ message: 'Contact details saved and sent successfully!' });

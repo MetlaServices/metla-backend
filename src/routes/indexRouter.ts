@@ -7,8 +7,9 @@ const router = express.Router();
 // Define the route for handling contact form submissions
 
 router.post('/currentUser',isAuthenticated,catchAsyncErrors(indexController.currentUser))
-router.post('/sendContactData', catchAsyncErrors(indexController.handleContactForm));
+router.post('/clientQuery', catchAsyncErrors(indexController.handleQueryFormClient));
 
+router.post('/employeeQuery', catchAsyncErrors(indexController.handleQueryFormEmployee));
 
 router.post('/sendApplicantDetails',catchAsyncErrors(indexController.submitApplicantDetails))
 
