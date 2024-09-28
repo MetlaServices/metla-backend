@@ -88,7 +88,7 @@ const htmlContent = `
     <body>
       <div class="container">
         <div class="header">
-          <h1>New Enquiry from employee</h1>
+          <h1>New Business Enquiry</h1>
         </div>
         <div class="content">
           <p><strong>Name:</strong> ${name}</p>
@@ -192,7 +192,7 @@ const htmlContent = `
     <body>
       <div class="container">
         <div class="header">
-          <h1>New Business Enquiry from Client</h1>
+          <h1>New Business Enquiry</h1>
         </div>
         <div class="content">
           <p><strong>Name:</strong> ${name}</p>
