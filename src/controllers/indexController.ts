@@ -88,7 +88,7 @@ const htmlContent = `
     <body>
       <div class="container">
         <div class="header">
-          <h1>New query</h1>
+          <h1>New query from employee</h1>
         </div>
         <div class="content">
           <p><strong>Name:</strong> ${name}</p>
@@ -184,13 +184,15 @@ const htmlContent = `
           border-radius: 5px;
           font-weight: bold;
         }
+          a{
+          color:#ffffff}
       
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>Contact Form Submission</h1>
+          <h1>New query from client</h1>
         </div>
         <div class="content">
           <p><strong>Name:</strong> ${name}</p>
