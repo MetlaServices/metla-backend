@@ -500,6 +500,24 @@ const htmlContent = `
     }
 }),
   
+  submitPopUpForm:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
+    try {
+      // Extract data from the request body
+      const { name, email, phone, message } = req.body;
+
+      // Optional: Save the data to the database
+      const newEntry = new Contact({ name, email, phone, message });
+      await newEntry.save();
+
+      // Send a success response
+      res.status(201).json({ message: 'Form submitted successfully!' });
+    } catch (error) {
+      // Handle any errors that occurred during processing
+      console.error('Error submitting form:', error);
+      next(error); // Pass the error to the error-handling middleware
+    }
+  }
+)
 };
 
 export default contactController;
