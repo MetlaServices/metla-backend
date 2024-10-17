@@ -9,6 +9,11 @@ import JobModel from '../models/jobModel'; // Import default export
 import Contact from '../models/query'; // Import default export
 import Application from '../models/applications';
 import ErrorHandler from '../utils/ErrorHandler';
+import { UploadedFile } from "express-fileupload";
+import { initimagekit } from '../utils/imagekit';
+import Blog from '../models/Blog';
+const imageKit=initimagekit()
+const isFileArray = (files: any): files is UploadedFile[] => Array.isArray(files);
 
 const adminController = {
 
@@ -117,7 +122,7 @@ const adminController = {
       const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET as string) as { id: string };
       const admin = await Admin.findById(decoded.id);
 
-      if (!admin || admin.refreshToken !== refreshToken) {
+      if (!admin || admin.getRefreshToken !== refreshToken) {
          res.status(403).json({ success: false, message: 'Invalid refresh token' });
          return
       }
@@ -261,6 +266,79 @@ const adminController = {
       next(error);
   }
   })
+,
+  postBlog : catchAsyncErrors(async (req: CustomRequest, res: Response): Promise<void> => {
+    try {
+      const adminId = req.id; // Extract admin ID from request
+      if (!adminId) {
+           res.status(401).json({ success: false, message: 'No admin ID found' });
+           return
+      }
+
+      // Fetch the admin details to check user type
+      const admin = await Admin.findById(adminId).select('userType');
+      if (!admin || admin.userType !== 'admin') {
+           res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
+           return
+      }
+
+      const { title, content } = req.body; // Extract title and content from request body
+
+      // Validate required fields
+      if (!title || !content) {
+           res.status(400).json({ success: false, message: 'Title and content are required' });
+           return 
+      }
+
+      let image: { url: string; fileId: string } | undefined;
+
+      // Check if an image is available in req.files and upload it to ImageKit
+      if (req.files && req.files.image) {
+          let uploadedImage;
+
+          // Use the type guard to determine if req.files.image is an array
+          if (Array.isArray(req.files.image)) {
+              uploadedImage = req.files.image[0]; // Access the first file if it's an array
+          } else {
+              uploadedImage = req.files.image; // If it's a single file
+          }
+
+          const fileBuffer = uploadedImage.data.toString('base64'); // Convert buffer to base64
+
+          const uploadResponse = await imageKit.upload({
+              file: fileBuffer, // base64-encoded image
+              fileName: uploadedImage.name, // Use the provided image file name
+              folder: '/blogs', // Specify folder in ImageKit
+          });
+
+          // Set the image object with URL and fileId from the response
+          image = {
+              url: uploadResponse.url,
+              fileId: uploadResponse.fileId,
+          };
+      }
+
+      // Create a new blog post
+      const newBlog = new Blog({
+          title,
+          content,
+          image,
+          createdBy: adminId, // Store the admin ID as the creator of the blog post
+      });
+
+      await newBlog.save(); // Save the new blog post to the database
+
+      res.status(201).json({
+          success: true,
+          message: 'Blog post created successfully',
+          blog: newBlog,
+      });
+  } catch (error) {
+      console.error('Error creating blog:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+  }),
+
 };
 
 export default adminController;

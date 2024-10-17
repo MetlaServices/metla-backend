@@ -22,4 +22,6 @@ router.get('/queries',isAuthenticated,adminController.fetchAllQueries)
 router.get('/viewapplications',isAuthenticated,adminController.viewApplications)
 
 router.post('/logout',isAuthenticated,adminController.logOut)
+
+router.post('/postblog',isAuthenticated,adminController.postBlog)
 export default router;

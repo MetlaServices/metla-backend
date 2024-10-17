@@ -26,7 +26,6 @@ const contactSchema = new Schema<IContact>({
   },
   message: {
     type: String,
-    required: true,
   },
 }, { timestamps: true }); // Automatically add createdAt and updatedAt fields
 

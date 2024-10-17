@@ -24,4 +24,5 @@ router.put('/update-profile',isAuthenticated,catchAsyncErrors(indexController.up
 
 router.post('/logout',isAuthenticated,catchAsyncErrors(indexController.logOut))
 
+router.get('/getAllBlogs',catchAsyncErrors(indexController.getAllBlogs))
 export default router;

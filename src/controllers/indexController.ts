@@ -12,6 +12,7 @@ import { initimagekit } from '../utils/imagekit';
 import Application from '../models/applications';
 import { UploadedFile } from 'express-fileupload'; // Import the custom type for file upload
 import Contact from '../models/query';
+import Blog from '../models/Blog';
 
 const imageKit = initimagekit();
 
@@ -509,7 +510,78 @@ const htmlContent = `
       const newEntry = new Contact({ name, email, phone, message });
       await newEntry.save();
 
-      // Send a success response
+      // Send a success respons
+      const htmlContent = `
+    <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+        }
+        .header {
+          background-color: #007BFF;
+          color: #ffffff;
+          padding: 20px;
+          text-align: center;
+        }
+        .header h1 {
+          margin: 0;
+        }
+        .content {
+          padding: 20px;
+        }
+        .content p {
+          color: #666666;
+          line-height: 1.6;
+        }
+        .content strong {
+          color: #333333;
+        }
+        .button {
+          display: inline-block;
+          margin: 20px 0;
+          padding: 10px 20px;
+          background-color: #007BFF;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 5px;
+          font-weight: bold;
+        }
+          a{
+          color:#ffffff}
+      
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>New Business Enquiry</h1>
+        </div>
+        <div class="content">
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+          <a href="mailto:${email}" class="button">Reply to ${name}</a>
+        </div>
+    
+      </div>
+    </body>
+  </html>
+`;
+await sendMail(htmlContent,"Anonymous")
       res.status(201).json({ message: 'Form submitted successfully!' });
     } catch (error) {
       // Handle any errors that occurred during processing
@@ -517,7 +589,23 @@ const htmlContent = `
       next(error); // Pass the error to the error-handling middleware
     }
   }
-)
+),
+
+  getAllBlogs:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
+    try {
+      // Fetch all blogs from the database
+      const blogs = await Blog.find().populate('createdBy', 'name email'); // Populate the createdBy field with admin details (adjust fields as needed)
+
+      res.status(200).json({
+          success: true,
+          count: blogs.length,
+          blogs,
+      });
+  } catch (error) {
+      console.error('Error fetching blogs:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+  })
 };
 
 export default contactController;
