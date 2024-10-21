@@ -267,77 +267,70 @@ const adminController = {
   }
   })
 ,
-  postBlog : catchAsyncErrors(async (req: CustomRequest, res: Response): Promise<void> => {
-    try {
-      const adminId = req.id; // Extract admin ID from request
-      if (!adminId) {
-           res.status(401).json({ success: false, message: 'No admin ID found' });
-           return
+postBlog: catchAsyncErrors(async (req: CustomRequest, res: Response): Promise<void> => {
+  try {
+    const adminId = req.id;
+    if (!adminId) {
+      res.status(401).json({ success: false, message: 'No admin ID found' });
+      return;
+    }
+    
+    console.log(req.files);
+
+    const admin = await Admin.findById(adminId).select('userType');
+    if (!admin || admin.userType !== 'Admin') {
+      res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
+      return;
+    }
+
+    const { title, content } = req.body;
+    if (!title || !content) {
+      res.status(400).json({ success: false, message: 'Title and content are required' });
+      return;
+    }
+
+    let imageUrl = ""; // Variable to store the uploaded image URL
+
+    // Check if the image is available in the request
+    if (req?.files?.image) {
+      // Determine if it's an array or a single file
+      const imageFiles = Array.isArray(req.files.image) ? req.files.image : [req.files.image];
+
+      // Process each image (if multiple files are allowed)
+      for (const imageFile of imageFiles) {
+        // Use the 'data' property of the file object for uploading
+        const uploadResponse = await imageKit.upload({
+          file: imageFile.data, // This is the buffer you want to upload
+          fileName: `${title}-image.${imageFile.mimetype.split('/')[1]}`, // Dynamically set the file extension based on mime type
+          folder: '/blogs',
+        });
+
+        // Assuming the uploadResponse contains the URL or a way to access it
+        imageUrl = uploadResponse.url; // Store the URL of the uploaded image
       }
+    }
 
-      // Fetch the admin details to check user type
-      const admin = await Admin.findById(adminId).select('userType');
-      if (!admin || admin.userType !== 'Admin') {
-           res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
-           return
-      }
+    // Create a new blog post
+    const newBlog = new Blog({
+      title,
+      content,
+      image: imageUrl, // Use the stored image URL
+      createdBy: adminId,
+    });
 
-      const { title, content } = req.body; // Extract title and content from request body
+    await newBlog.save(); // Save the new blog post to the database
 
-      // Validate required fields
-      if (!title || !content) {
-           res.status(400).json({ success: false, message: 'Title and content are required' });
-           return 
-      }
-
-      let image: { url: string; fileId: string } | undefined;
-      console.log(req.files)
-      // Check if an image is available in req.files and upload it to ImageKit
-      if (req.files && req.files.image) {
-          let uploadedImage;
-
-          // Use the type guard to determine if req.files.image is an array
-          if (Array.isArray(req.files.image)) {
-              uploadedImage = req.files.image[0]; // Access the first file if it's an array
-          } else {
-              uploadedImage = req.files.image; // If it's a single file
-          }
-
-          const fileBuffer = uploadedImage.data.toString('base64'); // Convert buffer to base64
-
-          const uploadResponse = await imageKit.upload({
-              file: fileBuffer, // base64-encoded image
-              fileName: uploadedImage.name, // Use the provided image file name
-              folder: '/blogs', // Specify folder in ImageKit
-          });
-
-          // Set the image object with URL and fileId from the response
-          image = {
-              url: uploadResponse.url,
-              fileId: uploadResponse.fileId,
-          };
-      }
-
-      // Create a new blog post
-      const newBlog = new Blog({
-          title,
-          content,
-          image,
-          createdBy: adminId, // Store the admin ID as the creator of the blog post
-      });
-
-      await newBlog.save(); // Save the new blog post to the database
-
-      res.status(201).json({
-          success: true,
-          message: 'Blog post created successfully',
-          blog: newBlog,
-      });
+    res.status(201).json({
+      success: true,
+      message: 'Blog post created successfully',
+      blog: newBlog,
+    });
   } catch (error) {
-      console.error('Error creating blog:', error);
-      res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error('Error creating blog:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
-  }),
+}),
+
 
   getBlogById:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
     const { id } = req.params;
