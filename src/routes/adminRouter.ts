@@ -24,4 +24,10 @@ router.get('/viewapplications',isAuthenticated,adminController.viewApplications)
 router.post('/logout',isAuthenticated,adminController.logOut)
 
 router.post('/postblog',isAuthenticated,adminController.postBlog)
+
+router.get('/getBlog/:id',adminController.getBlogById);
+
+router.get('/getAllBlogs',adminController.getAllBlogs)
+
+
 export default router;

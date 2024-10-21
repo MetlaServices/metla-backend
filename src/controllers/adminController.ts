@@ -277,7 +277,7 @@ const adminController = {
 
       // Fetch the admin details to check user type
       const admin = await Admin.findById(adminId).select('userType');
-      if (!admin || admin.userType !== 'admin') {
+      if (!admin || admin.userType !== 'Admin') {
            res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
            return
       }
@@ -291,7 +291,7 @@ const adminController = {
       }
 
       let image: { url: string; fileId: string } | undefined;
-
+      console.log(req.files)
       // Check if an image is available in req.files and upload it to ImageKit
       if (req.files && req.files.image) {
           let uploadedImage;
@@ -338,6 +338,42 @@ const adminController = {
       res.status(500).json({ success: false, message: 'Internal server error' });
   }
   }),
+
+  getBlogById:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
+    const { id } = req.params;
+
+    try {
+      // Find the blog by ID
+      const blog = await Blog.findById(id);
+  
+      if (!blog) {
+        // If no blog is found, send a 404 response
+         res.status(404).json({ message: 'Blog not found' });
+         return
+      }
+  
+      // If blog is found, send it in the response
+      res.status(200).json({ success: true, blog });
+    } catch (error) {
+      // Handle any errors (e.g., invalid ID format)
+      next(error); // This will trigger your error handling middleware
+    }
+  }),
+
+
+  getAllBlogs:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
+    try {
+      // Retrieve all blogs from the database
+      const blogs = await Blog.find();
+  
+      // Send the blogs in the response
+      res.status(200).json({ success: true, blogs });
+    } catch (error) {
+      // Handle any errors
+      next(error); // This will trigger your error handling middleware
+    }
+
+  })
 
 };
 
