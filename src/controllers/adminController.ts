@@ -270,56 +270,68 @@ const adminController = {
 postBlog: catchAsyncErrors(async (req: CustomRequest, res: Response): Promise<void> => {
   try {
     const adminId = req.id;
-    if (!adminId) {
-      res.status(401).json({ success: false, message: 'No admin ID found' });
-      return;
-    }
     
+    // Check if admin ID is present
+    if (!adminId) {
+       res.status(401).json({ success: false, message: 'No admin ID found' });
+       return
+    }
+
+    // Log uploaded files for debugging
     console.log(req.files);
 
+    // Verify admin's user type
     const admin = await Admin.findById(adminId).select('userType');
     if (!admin || admin.userType !== 'Admin') {
-      res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
-      return;
+     res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
+     return
     }
 
-    const { title, content } = req.body;
+    // Destructure and validate blog post data
+    const { title, content, description } = req.body;
+    console.log(req.body)
     if (!title || !content) {
-      res.status(400).json({ success: false, message: 'Title and content are required' });
-      return;
+       res.status(400).json({ success: false, message: 'Title and content are required' });
+       return
     }
 
-    let imageUrl = ""; // Variable to store the uploaded image URL
+    let imageUrl = ""; // Store uploaded image URL
+    let imageFileId = ""; // Store uploaded image file ID
 
-    // Check if the image is available in the request
+    // Handle image upload if available
     if (req?.files?.image) {
-      // Determine if it's an array or a single file
       const imageFiles = Array.isArray(req.files.image) ? req.files.image : [req.files.image];
 
-      // Process each image (if multiple files are allowed)
+      // Process each image file
       for (const imageFile of imageFiles) {
-        // Use the 'data' property of the file object for uploading
         const uploadResponse = await imageKit.upload({
-          file: imageFile.data, // This is the buffer you want to upload
-          fileName: `${title}-image.${imageFile.mimetype.split('/')[1]}`, // Dynamically set the file extension based on mime type
+          file: imageFile.data, // The image buffer
+          fileName: `${title}-image.${imageFile.mimetype.split('/')[1]}`, // Dynamic filename
           folder: '/blogs',
         });
 
-        // Assuming the uploadResponse contains the URL or a way to access it
-        imageUrl = uploadResponse.url; // Store the URL of the uploaded image
+        // Store the URL and file ID from the upload response
+        imageUrl = uploadResponse.url;
+        imageFileId = uploadResponse.fileId; // Ensure this is returned by your upload service
       }
     }
 
-    // Create a new blog post
+    // Create a new blog post document
     const newBlog = new Blog({
       title,
       content,
-      image: imageUrl, // Use the stored image URL
+      description,
+      image: {
+        url: imageUrl,
+        fileId: imageFileId
+      },
       createdBy: adminId,
     });
 
-    await newBlog.save(); // Save the new blog post to the database
+    // Save the new blog post to the database
+    await newBlog.save();
 
+    // Send response back to client
     res.status(201).json({
       success: true,
       message: 'Blog post created successfully',
@@ -330,6 +342,7 @@ postBlog: catchAsyncErrors(async (req: CustomRequest, res: Response): Promise<vo
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 }),
+
 
 
   getBlogById:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
