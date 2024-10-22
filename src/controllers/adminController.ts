@@ -267,83 +267,116 @@ const adminController = {
   }
   })
 ,
-postBlog: catchAsyncErrors(async (req: CustomRequest, res: Response): Promise<void> => {
-  try {
-    const adminId = req.id;
-    
-    // Check if admin ID is present
-    if (!adminId) {
-       res.status(401).json({ success: false, message: 'No admin ID found' });
-       return
-    }
-
-    // Log uploaded files for debugging
-    console.log(req.files);
-
-    // Verify admin's user type
-    const admin = await Admin.findById(adminId).select('userType');
-    if (!admin || admin.userType !== 'Admin') {
-     res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
-     return
-    }
-
-    // Destructure and validate blog post data
-    const { title, content, description } = req.body;
-    console.log(req.body)
-    if (!title || !content) {
-       res.status(400).json({ success: false, message: 'Title and content are required' });
-       return
-    }
-
-    let imageUrl = ""; // Store uploaded image URL
-    let imageFileId = ""; // Store uploaded image file ID
-
-    // Handle image upload if available
-    if (req?.files?.image) {
-      const imageFiles = Array.isArray(req.files.image) ? req.files.image : [req.files.image];
-
-      // Process each image file
-      for (const imageFile of imageFiles) {
-        const uploadResponse = await imageKit.upload({
-          file: imageFile.data, // The image buffer
-          fileName: `${title}-image.${imageFile.mimetype.split('/')[1]}`, // Dynamic filename
-          folder: '/blogs',
-        });
-
-        // Store the URL and file ID from the upload response
-        imageUrl = uploadResponse.url;
-        imageFileId = uploadResponse.fileId; // Ensure this is returned by your upload service
+  postBlog: catchAsyncErrors(async (req: CustomRequest, res: Response): Promise<void> => {
+    try {
+      console.log(req.body);
+      console.log(req.files);
+      
+      const adminId = req.id;
+  
+      // Check if admin ID is present
+      if (!adminId) {
+        res.status(401).json({ success: false, message: 'No admin ID found' });
+        return;
       }
+  
+      // Verify admin's user type
+      const admin = await Admin.findById(adminId).select('userType');
+      if (!admin || admin.userType !== 'Admin') {
+        res.status(403).json({ success: false, message: 'Forbidden: Only admins can post blogs' });
+        return;
+      }
+  
+      // Destructure and validate blog post data
+      const { title, description, headings,mainHead } = req.body;
+  
+      if (!title || !description) {
+        res.status(400).json({ success: false, message: 'Title and description are required' });
+        return;
+      }
+  
+      // Parse and validate headings structure if provided
+      let parsedHeadings = [];
+      if (headings) {
+        try {
+          parsedHeadings = JSON.parse(headings);
+        } catch (error) {
+           res.status(400).json({ success: false, message: 'Invalid headings format' });
+           return
+        }
+  
+        if (!Array.isArray(parsedHeadings) || parsedHeadings.length < 1) {
+          res.status(400).json({ success: false, message: 'Headings must be an array with at least one entry' });
+          return;
+        }
+  
+        // for (const heading of parsedHeadings) {
+        //   // Ensure that the correct property name is used here
+        //   if (!heading.title || !Array.isArray(heading.subheadings)) {
+        //     res.status(400).json({ success: false, message: 'Each heading must have a title and an array of subheadings' });
+        //     return;
+        //   }
+  
+        //   for (const subheading of heading.subheadings) {
+        //     if (!subheading.subheading || !subheading.content) {
+        //       res.status(400).json({ success: false, message: 'Each subheading must have a subheading and content' });
+        //       return;
+        //     }
+        //   }
+        // }
+      }
+  
+      let imageUrl = ""; // Store uploaded image URL
+      let imageFileId = ""; // Store uploaded image file ID
+  
+      // Handle image upload if available
+      if (req?.files?.image) {
+        const imageFiles = Array.isArray(req.files.image) ? req.files.image : [req.files.image];
+  
+        // Process each image file
+        for (const imageFile of imageFiles) {
+          const uploadResponse = await imageKit.upload({
+            file: imageFile.data, // The image buffer
+            fileName: `${title}-image.${imageFile.mimetype.split('/')[1]}`, // Dynamic filename
+            folder: '/blogs',
+          });
+  
+          // Store the URL and file ID from the upload response
+          imageUrl = uploadResponse.url;
+          imageFileId = uploadResponse.fileId; // Ensure this is returned by your upload service
+        }
+      }
+  
+      // Create a new blog post document
+      const newBlog = new Blog({
+        title,
+        description,
+        mainHead,
+        headings: parsedHeadings.map(h => ({
+          heading: h.title, // Assuming your JSON structure has 'title'
+          subheadings: h.subheadings
+        })) || [], // Include headings if provided
+        image: {
+          url: imageUrl,
+          fileId: imageFileId,
+        },
+        createdBy: adminId,
+      });
+  
+      // Save the new blog post to the database
+      await newBlog.save();
+  
+      // Send response back to client
+      res.status(201).json({
+        success: true,
+        message: 'Blog post created successfully',
+        blog: newBlog,
+      });
+    } catch (error) {
+      console.error('Error creating blog:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
     }
-
-    // Create a new blog post document
-    const newBlog = new Blog({
-      title,
-      content,
-      description,
-      image: {
-        url: imageUrl,
-        fileId: imageFileId
-      },
-      createdBy: adminId,
-    });
-
-    // Save the new blog post to the database
-    await newBlog.save();
-
-    // Send response back to client
-    res.status(201).json({
-      success: true,
-      message: 'Blog post created successfully',
-      blog: newBlog,
-    });
-  } catch (error) {
-    console.error('Error creating blog:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
 }),
-
-
 
   getBlogById:catchAsyncErrors(async(req:CustomRequest,res:Response,next:NextFunction):Promise<void>=>{
     const { id } = req.params;

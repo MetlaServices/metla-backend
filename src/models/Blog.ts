@@ -1,19 +1,30 @@
+// Define the Blog schema
 import { Schema, model, Document } from 'mongoose';
 
+// Interface for subheadings with content
+export interface ISubheadingContent {
+    subheading: string;
+    content: string;
+}
+
 // Blog interface representing the schema structure for TypeScript
+export interface IHeadingContent {
+    heading: string;
+    subheadings?: ISubheadingContent[]; // Optional array of subheadings
+}
 export interface IBlog extends Document {
     title: string;
-    content: string;
-    tags?: string[]; // Make tags optional if it’s not required
-    description?: string; // Make description optional if it’s not required
+    mainHead:string;
+    tags?: string[]; // Optional tags
+    description?: string; // Optional description
     image?: {
         url: string;
         fileId: string;
     };
     createdBy: Schema.Types.ObjectId; // Reference to the Admin who created the blog
+    headings: IHeadingContent[]; // Array of headings
 }
 
-// Define the Blog schema
 const BlogSchema = new Schema<IBlog>({
     title: {
         type: String,
@@ -21,14 +32,13 @@ const BlogSchema = new Schema<IBlog>({
         trim: true,
         maxlength: [100, 'Title cannot be more than 100 characters'],
     },
-    content: {
-        type: String,
-        required: [true, 'Content is required'],
-        trim: true,
-    },
     description: {
         type: String,
-        required: false, // Specify if it's optional
+        // required: false,
+    },
+    mainHead: {
+        type: String,
+        // required: false,
     },
     tags: {
         type: [String], // An array of strings for tags
@@ -49,6 +59,22 @@ const BlogSchema = new Schema<IBlog>({
         ref: 'Admin',
         required: true, // It’s typically good to enforce that a blog is created by an admin
     },
+    headings: [{
+        heading: {
+            type: String,
+            // required: true,
+        },
+        subheadings: [{
+            subheading: {
+                type: String,
+                // required: true,
+            },
+            content: {
+                type: String,
+                // required: true,
+            }
+        }]
+    }],
 }, { 
     timestamps: true // Automatically adds createdAt and updatedAt fields
 });
